@@ -88,6 +88,13 @@ class EndLine(BallDeflector):
             # Shouldn't happen. Must have miscalculated which side was hit, since this is an endline
             raise Exception(side_hit)
 
+class Brick(BallDeflector):
+
+    def deflect_ball(self, ball, side_hit):
+        self.game.increment_hit_count()
+        BallDeflector.deflect_ball(self, ball, side_hit)
+        self.game.game_objects.remove(self)
+
 class Ball(GameObject):
 
     default_velocity = 6.0 #Number of pixels the ball should move per game cycle
@@ -111,7 +118,7 @@ class Ball(GameObject):
         Generate a random angle that isn't too close to straight up and down or straight side to side
         :return: an angle in degrees
         '''
-        angle = random.randint(15,75)+90*random.randint(0,3)
+        angle = random.randint(10,75)+90*random.randint(0,3)
         debug_print('Starting ball angle: ' + str(angle) + ' degrees')
         return angle
 
@@ -188,7 +195,7 @@ class Ball(GameObject):
 
 class Paddle (BallDeflector):
 
-    default_velocity = 4.0
+    default_velocity = 8.0
 
     def __init__(self, player = None, up_key =None, down_key =None, left_key = None, right_key = None,
         name = None, img_file = None,
@@ -229,6 +236,9 @@ class Paddle (BallDeflector):
         pct = y_dist / float(virtual_height)
         return pct
 
+    def deflect_ball(self, ball, side_hit):
+#        self.game.increment_hit_count()
+        BallDeflector.deflect_ball(self, ball, side_hit)
 
 class Game(object):
     side_paddle_buffer = 50 # how far away from the side wall a paddle should start
@@ -251,8 +261,16 @@ class Game(object):
         self.hit_count = 0
 
         self.balls = [Ball(img_file= ball_img,
-                         initial_x= self.width/2,
-                         initial_y = self.height/2,
+                         initial_x= 20,
+                         initial_y = 20,
+                         game=self),
+                      Ball(img_file= ball_img,
+                         initial_x= 100,
+                         initial_y = 100,
+                         game=self),
+                      Ball(img_file= ball_img,
+                         initial_x= 180,
+                         initial_y = 180,
                          game=self)
                       ]
         self.paddles = [
@@ -265,14 +283,15 @@ class Game(object):
                     initial_y = self.height/2,
                     game=self
                     ),
-            Paddle(player = 2,
-                    up_key=pyglet.window.key.U,
-                    down_key=pyglet.window.key.J,
-                    name='Player 2',
-                    img_file=paddle_imgs[1],
-                    initial_x = self.width-self.side_paddle_buffer - paddle_width/2,
-                    initial_y = self.height/2,
-                    game=self)        ]
+            # Paddle(player = 2,
+            #         up_key=pyglet.window.key.U,
+            #         down_key=pyglet.window.key.J,
+            #         name='Player 2',
+            #         img_file=paddle_imgs[1],
+            #         initial_x = self.width-self.side_paddle_buffer - paddle_width/2,
+            #         initial_y = self.height/2,
+            #         game=self)
+            ]
         self.walls = [
             BallDeflector(initial_x = 0, #bottom
                 initial_y = 0,
@@ -286,12 +305,29 @@ class Game(object):
                 initial_y = 0,
                 img_file = wall_imgs[0],
                 game = self),
-            EndLine(initial_x = self.width - wall_width, #right
+            BallDeflector(initial_x = self.width - wall_width, #right
                 initial_y = 0,
                 img_file = wall_imgs[0],
                 game = self),
         ]
-        self.bricks = []  # Not used in this initial version
+        self.bricks = []
+        # for i in range(10):
+        #     self.bricks.append(BallDeflector(
+        #         initial_x = 100,
+        #         initial_y = i*brick_height,
+        #         img_file = wall_imgs[2],
+        #         game = self))
+        count = 0
+        for i in range(6):
+            next_row = 500 + count
+            for i in range(10):
+                count = count + 4
+                self.bricks.append(Brick(
+                    initial_x = next_row,
+                    initial_y = i*brick_height,
+                    img_file = wall_imgs[2],
+                    game = self))
+
         self.game_objects = self.walls + self.bricks + self.paddles + self.balls
 
     def update(self,pressed_keys):
@@ -326,8 +362,12 @@ class Game(object):
             game_object.draw()
 
     def increment_hit_count(self):
-        # this method will be used in an exercise in discussion section
         self.hit_count += 1
+        # Additions to task below:
+        if (self.hit_count % 10) == 0:
+            print("speeding up")
+            for ball in self.balls:
+                ball.velocity += 2
 
 class GameWindow(pyglet.window.Window):
 
@@ -418,7 +458,7 @@ def debug_print(string):
 
 def main():
     debug_print("Initializing window...")
-    ball_img = pyglet.resource.image('ball.png')
+    ball_img = pyglet.resource.image('tog2.jpg')
     # ball_img = pyglet.resource.image('vertical_wall.png')
     paddle_imgs = [pyglet.resource.image('paddle1.png'),
                    pyglet.resource.image('paddle2.png')]

@@ -8,15 +8,20 @@ debug = True
 
 ## Tasks
 #1) Change the frame rate so that the whole thing goes faster or slower
+#DONE
 #2) Change the initial ball and paddle speeds so that they move farther
+#DONE
 #3) Make a ForwardPaddle subclass (initially, don't override anything)
+#ALREADY DONE?
 #4) Put multiple balls in play at the same time!
+# DONE
 #5) Speed up the balls every fourth time they hit a paddle.
   # a) We have already created a method increment_hit_count in the Game class
   # b) Figure out how to call it whenever a Paddle deflects a ball. (Note: this requires overriding the deflect_ball
   # method and calling the superclass' deflect_ball method after calling increment_hit_count)
   # c) Add to the code for increment_hit_count to make it increment all the balls' velocities
   #    if the counter is divisible by 4.
+# ALREADY DONE
 #6) Add forward paddles to the game
 #7) Modify forward paddles to allow horizontal movement as well as vertical
   # HINT: just pass additional parameters when creating the instances
@@ -114,7 +119,7 @@ class EndLine(BallDeflector):
 
 class Ball(GameObject):
 
-    default_velocity = 6.0 #Number of pixels the ball should move per game cycle
+    default_velocity = 2.0 #Number of pixels the ball should move per game cycle
 
     def update(self,pressed_keys):
         self.move()
@@ -212,7 +217,7 @@ class Ball(GameObject):
 
 class Paddle (BallDeflector):
 
-    default_velocity = 4.0
+    default_velocity = 10.0
 
     def __init__(self, player = None, up_key =None, down_key =None, left_key = None, right_key = None,
         name = None, img_file = None,
@@ -302,6 +307,14 @@ class Game(object):
         self.hit_count = 0
 
         self.balls = [Ball(img_file= ball_img,
+                         initial_x= self.width/2,
+                         initial_y = self.height/2,
+                         game=self),
+                      Ball(img_file= ball_img,
+                         initial_x= self.width/2,
+                         initial_y = self.height/2,
+                         game=self),
+                      Ball(img_file= ball_img,
                          initial_x= self.width/2,
                          initial_y = self.height/2,
                          game=self)
@@ -429,7 +442,7 @@ class GameWindow(pyglet.window.Window):
         # Decide how often we want to update the game, which involves
         # first telling the game object to update itself and all its objects
         # and then rendering the updated game using
-        self.fps = 20 #Number of frames per seconds
+        self.fps = 50 #Number of frames per seconds
 
         #This tells Pyglet to call Window.update() once every fps-th of a second
         pyglet.clock.schedule_interval(self.update, 1.0/self.fps)
@@ -500,7 +513,7 @@ def debug_print(string):
 
 def main():
     debug_print("Initializing window...")
-    ball_img = pyglet.resource.image('ball.png')
+    ball_img = pyglet.resource.image('tog2.jpg')
     # could be any image... if the image is saved here
     paddle_imgs = [pyglet.resource.image('paddle1.png'),
                    pyglet.resource.image('paddle2.png')]
