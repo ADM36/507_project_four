@@ -460,7 +460,7 @@ def main():
     debug_print("Initializing window...")
     ball_img = pyglet.resource.image('tog2.jpg')
     # ball_img = pyglet.resource.image('vertical_wall.png')
-    paddle_imgs = [pyglet.resource.image('paddle1.png'),
+    paddle_imgs = [pyglet.resource.image('saber.jpg'),
                    pyglet.resource.image('paddle2.png')]
     wall_imgs = [pyglet.resource.image('vertical_wall.png'),
                  pyglet.resource.image('horizontal_wall.png'),
